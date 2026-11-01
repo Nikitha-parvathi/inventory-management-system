@@ -690,17 +690,13 @@ _Add screenshots to a `screenshots/` folder and keep the lines below._
 
 | Name | Role | Contribution |
 |---|---|---|
-| _Member 1_ | Team Lead | _Database design, SQL script, integration and final testing_ |
-| _Member 2_ | Developer | _Models, validators, master data and purchase management_ |
-| _Member 3_ | Developer | _Sales, stock management, reports, CSV export and documentation_ |
-
-_Replace the placeholders with your real names, roles and contributions._
-
+| Nikitha Parvathi | Team Lead & Developer | Designed database schema, wrote SQL script, built CLI and core services, wrote tests, integration and final testing |
 ---
+
 
 ## Repository
 
-GitHub Repository: `<add your repository link here>`
+GitHub Repository: [inventory-management-system](https://github.com/Nikitha-parvathi/inventory-management-system)
 
 ---
 
