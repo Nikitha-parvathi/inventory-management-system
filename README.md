@@ -266,6 +266,65 @@ inventory-management-system/
 | procedure `sp_adjust_stock` | Records manual stock corrections |
 
 ---
+## ER Diagram
+
+```mermaid
+erDiagram
+    CATEGORIES ||--o{ PRODUCTS : has
+    SUPPLIERS ||--o{ PRODUCTS : supplies
+    PRODUCTS ||--o{ STOCK_TRANSACTIONS : "recorded in"
+    PRODUCTS ||--o{ ORDER_ITEMS : "appears in"
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    CUSTOMERS ||--o{ ORDERS : places
+
+    CATEGORIES {
+        int category_id PK
+        string category_name
+    }
+    SUPPLIERS {
+        int supplier_id PK
+        string supplier_name
+        string phone
+        string email
+    }
+    PRODUCTS {
+        int product_id PK
+        string product_name
+        decimal price
+        int quantity
+        int reorder_level
+        int category_id FK
+        int supplier_id FK
+    }
+    STOCK_TRANSACTIONS {
+        int transaction_id PK
+        int product_id FK
+        string type
+        int quantity
+        date transaction_date
+    }
+    CUSTOMERS {
+        int customer_id PK
+        string customer_name
+        string email
+    }
+    ORDERS {
+        int order_id PK
+        int customer_id FK
+        date order_date
+    }
+    ORDER_ITEMS {
+        int order_item_id PK
+        int order_id FK
+        int product_id FK
+        int quantity
+    }
+```
+
+
+
+
+
 
 ## 9. Data Persistence
 
