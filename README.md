@@ -267,63 +267,93 @@ inventory-management-system/
 
 ---
 ## ER Diagram
+    ```mermaid
+     erDiagram
+    suppliers ||--o{ products : supplies
+    product_categories ||--o{ products : groups
+    suppliers ||--o{ purchase_orders : receives
+    warehouses ||--o{ purchase_orders : "delivered to"
+    purchase_orders ||--o{ purchase_items : contains
+    products ||--o{ purchase_items : "bought in"
+    warehouses ||--o{ sales : "sold from"
+    sales ||--o{ sales_items : contains
+    products ||--o{ sales_items : "sold in"
+    products ||--o{ warehouse_stock : "stocked as"
+    warehouses ||--o{ warehouse_stock : holds
+    products ||--o{ stock_transactions : "logged in"
+    warehouses ||--o{ stock_transactions : "moves in"
 
-```mermaid
-erDiagram
-    CATEGORIES ||--o{ PRODUCTS : has
-    SUPPLIERS ||--o{ PRODUCTS : supplies
-    PRODUCTS ||--o{ STOCK_TRANSACTIONS : "recorded in"
-    PRODUCTS ||--o{ ORDER_ITEMS : "appears in"
-    ORDERS ||--o{ ORDER_ITEMS : contains
-    CUSTOMERS ||--o{ ORDERS : places
-
-    CATEGORIES {
-        int category_id PK
-        string category_name
-    }
-    SUPPLIERS {
+    suppliers {
         int supplier_id PK
         string supplier_name
+        string contact_person
         string phone
         string email
+        string address
     }
-    PRODUCTS {
+    product_categories {
+        int category_id PK
+        string category_name
+        string description
+    }
+    warehouses {
+        int warehouse_id PK
+        string warehouse_name
+        string location
+    }
+    products {
         int product_id PK
+        string sku
         string product_name
-        decimal price
-        int quantity
-        int reorder_level
         int category_id FK
         int supplier_id FK
+        decimal cost_price
+        decimal selling_price
+        int reorder_level
     }
-    STOCK_TRANSACTIONS {
+    warehouse_stock {
+        int product_id FK
+        int warehouse_id FK
+        int quantity
+    }
+    purchase_orders {
+        int po_id PK
+        int supplier_id FK
+        int warehouse_id FK
+        date order_date
+        date received_date
+        string status
+        decimal total_amount
+    }
+    purchase_items {
+        int po_item_id PK
+        int po_id FK
+        int product_id FK
+        int quantity
+        decimal unit_cost
+    }
+    sales {
+        int sale_id PK
+        int warehouse_id FK
+        date sale_date
+        decimal total_amount
+    }
+    sales_items {
+        int sale_item_id PK
+        int sale_id FK
+        int product_id FK
+        int quantity
+        decimal unit_price
+    }
+    stock_transactions {
         int transaction_id PK
         int product_id FK
-        string type
-        int quantity
-        date transaction_date
-    }
-    CUSTOMERS {
-        int customer_id PK
-        string customer_name
-        string email
-    }
-    ORDERS {
-        int order_id PK
-        int customer_id FK
-        date order_date
-    }
-    ORDER_ITEMS {
-        int order_item_id PK
-        int order_id FK
-        int product_id FK
-        int quantity
+        int warehouse_id FK
+        string transaction_type
+        int quantity_change
+        datetime created_at
     }
 ```
-
-
-
-
 
 
 ## 9. Data Persistence
