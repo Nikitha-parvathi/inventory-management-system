@@ -267,93 +267,10 @@ inventory-management-system/
 
 ---
 ## ER Diagram
-    ```mermaid
-     erDiagram
-    suppliers ||--o{ products : supplies
-    product_categories ||--o{ products : groups
-    suppliers ||--o{ purchase_orders : receives
-    warehouses ||--o{ purchase_orders : "delivered to"
-    purchase_orders ||--o{ purchase_items : contains
-    products ||--o{ purchase_items : "bought in"
-    warehouses ||--o{ sales : "sold from"
-    sales ||--o{ sales_items : contains
-    products ||--o{ sales_items : "sold in"
-    products ||--o{ warehouse_stock : "stocked as"
-    warehouses ||--o{ warehouse_stock : holds
-    products ||--o{ stock_transactions : "logged in"
-    warehouses ||--o{ stock_transactions : "moves in"
-
-    suppliers {
-        int supplier_id PK
-        string supplier_name
-        string contact_person
-        string phone
-        string email
-        string address
-    }
-    product_categories {
-        int category_id PK
-        string category_name
-        string description
-    }
-    warehouses {
-        int warehouse_id PK
-        string warehouse_name
-        string location
-    }
-    products {
-        int product_id PK
-        string sku
-        string product_name
-        int category_id FK
-        int supplier_id FK
-        decimal cost_price
-        decimal selling_price
-        int reorder_level
-    }
-    warehouse_stock {
-        int product_id FK
-        int warehouse_id FK
-        int quantity
-    }
-    purchase_orders {
-        int po_id PK
-        int supplier_id FK
-        int warehouse_id FK
-        date order_date
-        date received_date
-        string status
-        decimal total_amount
-    }
-    purchase_items {
-        int po_item_id PK
-        int po_id FK
-        int product_id FK
-        int quantity
-        decimal unit_cost
-    }
-    sales {
-        int sale_id PK
-        int warehouse_id FK
-        date sale_date
-        decimal total_amount
-    }
-    sales_items {
-        int sale_item_id PK
-        int sale_id FK
-        int product_id FK
-        int quantity
-        decimal unit_price
-    }
-    stock_transactions {
-        int transaction_id PK
-        int product_id FK
-        int warehouse_id FK
-        string transaction_type
-        int quantity_change
-        datetime created_at
-    }
-```
+   
+   
+       
+        <img width="1556" height="1292" alt="image" src="https://github.com/user-attachments/assets/d10ea193-ca00-4ea4-96d6-40fc891d5f39" />
 
 
 ## 9. Data Persistence
@@ -803,18 +720,13 @@ _Add screenshots to a `screenshots/` folder and keep the lines below._
 
 | Name | Role | Contribution |
 |---|---|---|
-| _Member 1_ | Team Lead | _Database design, SQL script, integration and final testing_ |
-| _Member 2_ | Developer | _Models, validators, master data and purchase management_ |
-| _Member 3_ | Developer | _Sales, stock management, reports, CSV export and documentation_ |
+|PARVTAHI NIKITHA | Team Lead | _Database design, SQL script, integration and final testing_ |
 
-_Replace the placeholders with your real names, roles and contributions._
-
----
 
 ## Repository
 
 GitHub Repository: `<add your repository link here>`
-
+https://github.com/Nikitha-parvathi/inventory-management-system
 ---
 
 **INVENTORY MANAGEMENT SYSTEM - Python Console Application with MySQL Database**
