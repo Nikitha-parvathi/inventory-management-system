@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>StockPilot – Inventory Management System</title>
+<style>
+:root{--bg:#f5f7fb;--cd:#fff;--fg:#1b2333;--mu:#667086;--bd:#e1e6ef;--ac:#0f766e;--ac2:#e6f4f2;--ok:#15803d;--okb:#dcfce7;--wa:#b45309;--wab:#fef3c7;--ba:#b91c1c;--bab:#fee2e2;--sb:#10241f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1319;--cd:#171d26;--fg:#e6ebf4;--mu:#97a1b4;--bd:#283140;--ac:#2dd4bf;--ac2:#12302d;--ok:#86efac;--okb:#14331f;--wa:#fcd34d;--wab:#3a2e0d;--ba:#fca5a5;--bab:#3d1616;--sb:#0a1412}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif;display:flex}
+aside{width:220px;background:var(--sb);color:#cfe3de;padding:18px 12px;flex:none;overflow:auto}aside h2{margin:0 8px 16px;font-size:18px;color:#fff}
+aside a{display:block;color:inherit;text-decoration:none;padding:9px 12px;border-radius:8px;margin-bottom:2px}aside a:hover{background:#ffffff14}aside a.on{background:var(--ac);color:#04201c;font-weight:600}
+aside button{margin:14px 8px 0;background:none;border:1px solid #ffffff33;color:#9bb8b1;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px}
+main{flex:1;min-width:0;padding:24px 28px;overflow:auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}h1{font-size:22px;margin:0}h3{margin:22px 0 8px;font-size:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px 16px}
+.card small{color:var(--mu)}.card b{display:block;font-size:24px;margin-top:2px}.card.warn b{color:var(--ba)}
+.pan{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-top:14px;overflow-x:auto}
+table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--mu);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}th,td{padding:9px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}tr:last-child td{border:0}tbody tr:hover{background:var(--ac2)}td.r{text-align:right}
+.b{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}.ok,.IN,.Paid,.Received{background:var(--okb);color:var(--ok)}.warn,.Pending{background:var(--wab);color:var(--wa)}.bad,.OUT,.Cancelled{background:var(--bab);color:var(--ba)}
+button,input,select{font:inherit;color:var(--fg)}button{background:var(--ac);color:#04201c;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600}button.g{background:var(--ac2);color:var(--ac);padding:5px 10px}button.d{color:var(--ba);background:var(--bab)}
+input,select{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;width:100%}input.s{max-width:260px}
+.bars{display:flex;align-items:flex-end;gap:18px;height:170px;padding-top:10px}.bars div{flex:1;text-align:center;font-size:12px;color:var(--mu);display:flex;flex-direction:column;justify-content:flex-end;height:100%}.bars i{display:block;background:var(--ac);border-radius:6px 6px 0 0;margin-bottom:4px}
+#m{display:none;position:fixed;inset:0;background:#0009;align-items:center;justify-content:center;padding:16px;z-index:9}#m.on{display:flex}.box{background:var(--cd);border-radius:14px;padding:20px;width:100%;max-width:460px;max-height:90vh;overflow:auto}.box h3{margin-top:0}.box label{display:block;margin:10px 0 0;color:var(--mu);font-size:12px}.ac{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}.line{display:flex;gap:6px;margin-top:8px}.line input{width:80px}
+#t{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:10px;display:none;z-index:10}
+@media(max-width:760px){body{display:block;height:auto}aside{width:auto;display:flex;flex-wrap:wrap;gap:4px;padding:10px}aside h2{width:100%;margin:0 4px}aside a{padding:6px 10px}main{padding:16px}}
+</style></head><body>
+<aside><h2>📦 StockPilot</h2><nav id="nv"></nav><button id="rs">Reset demo data</button></aside>
+<main id="mn"></main><div id="m"></div><div id="t"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),money=n=>"₹"+Math.round(n).toLocaleString("en-IN"),today=()=>new Date().toISOString().slice(0,10);
+const S=(a,k)=>a.map((r,i)=>Object.assign({id:i+1},Object.fromEntries(k.map((x,j)=>[x,r[j]])))),I=a=>a.map(([prod,q,price])=>({prod,q,price}));
+const seed=()=>({
+sup:S([["TechSource Pvt Ltd","Hyderabad","9000000001"],["HomeNest Furnishings","Bengaluru","9000000002"],["PaperPlus Traders","Chennai","9000000003"],["BrightWire Electricals","Mumbai","9000000004"],["KitchenKart","Pune","9000000005"]],["name","city","phone"]),
+cat:S([["Electronics"],["Furniture"],["Stationery"],["Electrical"],["Home"]],["name"]),
+prod:S([["EL-001","Laptop",1,1,55000,48000,5],["EL-002","Wireless Mouse",1,1,799,500,20],["EL-003","Keyboard",1,1,1499,950,15],["FU-001","Office Chair",2,2,6500,4500,5],["FU-002","Study Desk",2,2,8200,6000,4],["ST-001","A4 Paper Ream",3,3,320,240,50],["ST-002","Ball Pens Box",3,3,120,80,40],["ST-003","Notebook",3,3,60,35,60],["EC-001","LED Bulb",4,4,150,90,30],["EC-002","Extension Board",4,4,450,300,15],["HM-001","Water Bottle",5,5,350,200,20]],["sku","name","cat","sup","price","cost","reorder"]),
+wh:S([["Main Warehouse","Hyderabad"],["South Hub","Bengaluru"],["Stationery Depot","Chennai"]],["name","city"]),
+stock:[[1,1,12],[1,2,3],[2,1,45],[3,1,8],[4,2,14],[5,2,2],[6,3,120],[7,3,25],[8,3,30],[9,1,60],[10,1,18],[11,3,0]].map(([prod,wh,q])=>({prod,wh,q})),
+po:S([[1,"2026-08-05","Received",I([[1,10,48000],[2,50,500]])],[2,"2026-08-12","Received",I([[4,15,4500],[5,6,6000]])],[3,"2026-09-01","Received",I([[6,150,240],[7,60,80],[8,100,35]])],[4,"2026-09-10","Pending",I([[9,80,90]])],[1,"2026-09-25","Received",I([[3,20,950]])],[5,"2026-10-08","Pending",I([[11,40,200]])]],["sup","date","status","items"]),
+sale:S([["Ravi Kumar","2026-09-03",1,"Paid",I([[1,1,55000],[2,2,799]])],["Anita Rao","2026-09-15",2,"Paid",I([[4,2,6500]])],["Sri Traders","2026-09-20",3,"Paid",I([[6,40,320],[7,20,120],[8,50,60]])],["Kiran Reddy","2026-10-02",1,"Pending",I([[3,1,1499]])],["Meena Iyer","2026-10-05",3,"Paid",I([[8,10,60]])],["Sri Traders","2026-10-12",3,"Paid",I([[6,30,320],[8,40,60]])],["Arjun Das","2026-10-18",2,"Pending",I([[5,1,8200]])],["Ravi Kumar","2026-10-25",1,"Paid",I([[2,3,799],[9,10,150],[3,2,1499]])]],["cust","date","wh","pay","items"]),
+txn:S([[1,1,"IN",10,"2026-08-07","PO-1"],[2,1,"IN",50,"2026-08-07","PO-1"],[4,2,"IN",15,"2026-08-14","PO-2"],[6,3,"IN",150,"2026-09-03","PO-3"],[1,1,"OUT",1,"2026-09-03","SALE-1"],[6,3,"OUT",40,"2026-09-20","SALE-3"],[8,3,"OUT",50,"2026-09-20","SALE-3"],[3,1,"IN",20,"2026-09-27","PO-5"],[9,1,"OUT",10,"2026-10-25","SALE-8"],[2,1,"OUT",3,"2026-10-25","SALE-8"]],["prod","wh","type","q","date","ref"])});
+let DB;try{DB=JSON.parse(localStorage.getItem("stockpilot"))}catch(e){}if(!DB||!DB.txn)DB=seed();
+const save=()=>{try{localStorage.setItem("stockpilot",JSON.stringify(DB))}catch(e){}};
+const nm=(k,id)=>DB[k].find(x=>x.id==id)?.name||"–",nid=a=>Math.max(0,...a.map(x=>x.id))+1;
+const tot=p=>DB.stock.filter(s=>s.prod==p).reduce((a,s)=>a+s.q,0),val=l=>l.reduce((a,i)=>a+i.q*i.price,0);
+const sold=p=>DB.sale.flatMap(s=>s.items).filter(i=>i.prod==p).reduce((a,i)=>a+i.q,0);
+const stat=p=>{const q=tot(p.id);return q==0?["Out of stock","bad"]:q<=p.reorder?["Low stock","warn"]:["In stock","ok"]};
+const bd=(t,c)=>`<span class="b ${c||t}">${t}</span>`,lines=l=>l.map(i=>esc(nm("prod",i.prod))+" ×"+i.q).join(", ");
+const toast=m=>{const t=$("#t");t.textContent=m;t.style.display="block";clearTimeout(t.h);t.h=setTimeout(()=>t.style.display="none",2500)};
+const ENT={sup:{t:"Suppliers",f:[["name","Name"],["city","City"],["phone","Phone"]]},cat:{t:"Product Categories",f:[["name","Category name"]]},prod:{t:"Products",f:[["sku","SKU"],["name","Name"],["cat","Category","sel","cat"],["sup","Supplier","sel","sup"],["price","Selling price","num"],["cost","Cost price","num"],["reorder","Reorder level","num"]]},wh:{t:"Warehouses",f:[["name","Name"],["city","City"]]}};
+const FK={sup:"sup",cat:"cat",prod:"prod",wh:"wh"};
+const used=(k,id)=>Object.entries(DB).some(([t,a])=>t!=k&&a.some(r=>r[FK[k]]==id&&(t!="stock"||r.q>0)||(r.items||[]).some(i=>FK[k]=="prod"&&i.prod==id)));
+const tbl=(h,rows,f)=>`${f?`<input class="s" placeholder="Search…" data-f="1">`:""}<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${h.length}" style="color:var(--mu)">No records yet.</td></tr>`}</tbody></table>`;
+const head=(t,btn)=>`<div class="top"><h1>${t}</h1>${btn||""}</div>`;
+const pan=x=>`<div class="pan">${x}</div>`;
+function monthly(){const m={};DB.sale.forEach(s=>{const k=s.date.slice(0,7);m[k]=m[k]||{b:0,r:0};m[k].b++;m[k].r+=val(s.items)});return Object.entries(m).sort()}
+function ranked(){return DB.prod.map(p=>({p,u:sold(p.id)})).sort((a,b)=>b.u-a.u)}
+const pages={
+dash(){const low=DB.prod.filter(p=>tot(p.id)<=p.reorder),mo=monthly(),mx=Math.max(1,...mo.map(x=>x[1].r));
+return head("Dashboard")+`<div class="cards"><div class="card"><small>Products</small><b>${DB.prod.length}</b></div><div class="card"><small>Units in stock</small><b>${DB.prod.reduce((a,p)=>a+tot(p.id),0)}</b></div><div class="card"><small>Inventory value</small><b>${money(DB.prod.reduce((a,p)=>a+tot(p.id)*p.cost,0))}</b></div><div class="card warn"><small>Low-stock alerts</small><b>${low.length}</b></div><div class="card"><small>Total sales</small><b>${money(DB.sale.reduce((a,s)=>a+val(s.items),0))}</b></div><div class="card"><small>Pending POs</small><b>${DB.po.filter(p=>p.status=="Pending").length}</b></div></div>
+<div class="pan"><h3 style="margin-top:0">⚠️ Low-stock alerts</h3>${tbl(["Product","Stock","Reorder level","Status"],low.map(p=>[esc(p.name),tot(p.id),p.reorder,bd(...stat(p))]))}<p><a href="#po"><button class="g">Create purchase order →</button></a></p></div>
+<div class="pan"><h3 style="margin-top:0">Monthly sales</h3><div class="bars">${mo.map(([k,v])=>`<div><span>${money(v.r)}</span><i style="height:${v.r/mx*100}%"></i>${k}</div>`).join("")}</div></div>`},
+rep(){const r=ranked(),sp={};DB.po.filter(p=>p.status!="Cancelled").forEach(p=>{const o=sp[p.sup]=sp[p.sup]||{n:0,v:0,pe:0};o.n++;o.v+=val(p.items);if(p.status=="Pending")o.pe++});
+return head("Reports")+pan(`<h3 style="margin-top:0">Current stock report</h3>`+tbl(["SKU","Product","Category","Stock","Value at cost","Status"],DB.prod.map(p=>[p.sku,esc(p.name),esc(nm("cat",p.cat)),tot(p.id),money(tot(p.id)*p.cost),bd(...stat(p))]),1))
++pan(`<h3 style="margin-top:0">Low-stock alerts</h3>`+tbl(["Product","Stock","Reorder level","Shortfall","Supplier"],DB.prod.filter(p=>tot(p.id)<=p.reorder).map(p=>[esc(p.name),tot(p.id),p.reorder,p.reorder-tot(p.id),esc(nm("sup",p.sup))])))
++pan(`<h3 style="margin-top:0">Supplier-wise purchase report</h3>`+tbl(["Supplier","Orders","Purchase value","Pending orders"],Object.entries(sp).map(([k,o])=>[esc(nm("sup",k)),o.n,money(o.v),o.pe])))
++pan(`<h3 style="margin-top:0">Monthly sales report</h3>`+tbl(["Month","Bills","Revenue"],monthly().map(([k,v])=>[k,v.b,money(v.r)])))
++pan(`<h3 style="margin-top:0">Fast-moving &amp; slow-moving products</h3>`+tbl(["Rank","Product","Units sold","Movement"],r.map((x,i)=>[i+1,esc(x.p.name),x.u,x.u>=20?bd("Fast","ok"):x.u<5?bd("Slow","bad"):bd("Normal","warn")])))+`<p style="color:var(--mu)">Fast = 20+ units sold, Slow = fewer than 5 units sold.</p>`},
+po(){return head("Purchase Orders",`<button data-a="new" data-k="po">+ New purchase order</button>`)+pan(tbl(["PO #","Supplier","Date","Items (Purchase Items)","Value","Status",""],[...DB.po].reverse().map(p=>[p.id,esc(nm("sup",p.sup)),p.date,esc(lines(p.items)),money(val(p.items)),bd(p.status),p.status=="Pending"?`<button class="g" data-a="recv" data-i="${p.id}">Receive</button> <button class="g d" data-a="cancel" data-i="${p.id}">Cancel</button>`:""]),1))},
+sale(){return head("Sales",`<button data-a="new" data-k="sale">+ New sale</button>`)+pan(tbl(["Sale #","Customer","Date","Warehouse","Items (Sales Items)","Total","Payment",""],[...DB.sale].reverse().map(s=>[s.id,esc(s.cust),s.date,esc(nm("wh",s.wh)),esc(lines(s.items)),money(val(s.items)),bd(s.pay),s.pay=="Pending"?`<button class="g" data-a="paid" data-i="${s.id}">Mark paid</button>`:""]),1))},
+txn(){return head("Stock Transactions")+pan(tbl(["Date","Product","Warehouse","Type","Qty","Reference"],[...DB.txn].reverse().map(t=>[t.date,esc(nm("prod",t.prod)),esc(nm("wh",t.wh)),bd(t.type),t.q,t.ref]),1))}
+};
+Object.keys(ENT).forEach(k=>pages[k]=()=>{const E=ENT[k],h=E.f.map(f=>f[1]);if(k=="prod")h.push("Stock");
+const rows=DB[k].map(r=>{const c=E.f.map(f=>f[2]=="sel"?esc(nm(f[3],r[f[0]])):["price","cost"].includes(f[0])?money(r[f[0]]):esc(r[f[0]]));if(k=="prod")c.push(`${tot(r.id)} ${bd(...stat(r))}`);c.push(`<button class="g" data-a="edit" data-k="${k}" data-i="${r.id}">Edit</button> <button class="g d" data-a="del" data-k="${k}" data-i="${r.id}">Delete</button>`);return c});
+return head(E.t,`<button data-a="edit" data-k="${k}">+ Add ${E.t.replace(/s$/,"").toLowerCase()}</button>`)+pan(tbl([...h,""],rows,1))});
+const NAV=[["dash","📊 Dashboard"],["sup","Suppliers"],["cat","Product Categories"],["prod","Products"],["wh","Warehouses"],["po","Purchase Orders"],["sale","Sales"],["txn","Stock Transactions"],["rep","📑 Reports"]];
+function render(){const h=pages[location.hash.slice(1)]?location.hash.slice(1):"dash";$("#nv").innerHTML=NAV.map(([k,l])=>`<a href="#${k}" class="${k==h?"on":""}">${l}</a>`).join("");$("#mn").innerHTML=pages[h]();scrollTo(0,0)}
+const opts=(k,sel)=>DB[k].map(x=>`<option value="${x.id}" ${x.id==sel?"selected":""}>${esc(x.name)}</option>`).join("");
+function modal(t,body,ok){$("#m").innerHTML=`<div class="box"><h3>${t}</h3>${body}<div class="ac"><button class="g" data-a="close">Cancel</button><button id="ok">Save</button></div></div>`;$("#m").className="on";$("#ok").onclick=()=>{if(ok()!==false){close_();render();save()}}}
+const close_=()=>{$("#m").className="";$("#m").innerHTML=""},v=n=>$("#m [name="+n+"]").value.trim();
+function addLine(){const d=document.createElement("div");d.className="line";d.innerHTML=`<select>${opts("prod")}</select><input type="number" min="1" value="1"><button class="g d" data-a="rm">×</button>`;$("#lines").append(d)}
+const getLines=()=>[...document.querySelectorAll("#lines .line")].map(d=>({prod:+d.querySelector("select").value,q:+d.querySelector("input").value}));
+function entityForm(k,id){const E=ENT[k],r=DB[k].find(x=>x.id==id)||{};modal((id?"Edit ":"Add ")+E.t.toLowerCase(),E.f.map(f=>`<label>${f[1]}${f[2]=="sel"?`<select name="${f[0]}">${opts(f[3],r[f[0]])}</select>`:`<input name="${f[0]}" type="${f[2]=="num"?"number":"text"}" min="0" value="${esc(r[f[0]]??"")}">`}</label>`).join(""),()=>{const o={};for(const f of E.f){let x=v(f[0]);if(x===""){toast("Please fill "+f[1]);return false}o[f[0]]=f[2]=="num"||f[2]=="sel"?+x:x}
+if(k=="prod"&&(o.price<=0||DB.prod.some(p=>p.sku==o.sku&&p.id!=id))){toast("Price must be above 0 and SKU unique");return false}
+id?Object.assign(r,o):DB[k].push({id:nid(DB[k]),...o});toast("Saved")})}
+function orderForm(k){const po=k=="po";modal(po?"New purchase order":"New sale",(po?`<label>Supplier<select name="a">${opts("sup")}</select></label>`:`<label>Customer<input name="c"></label><label>Warehouse<select name="a">${opts("wh")}</select></label>`)+`<label>Date<input type="date" name="d" value="${today()}"></label><label>Items</label><div id="lines"></div><button class="g" data-a="addline" style="margin-top:8px">+ Add item</button>`,()=>{const L=getLines(),a=+v("a");if(!L.length||L.some(l=>l.q<1)){toast("Add at least one item with quantity");return false}
+if(!po){if(!v("c")){toast("Enter customer name");return false}const need={};L.forEach(l=>need[l.prod]=(need[l.prod]||0)+l.q);for(const p in need){const s=DB.stock.find(x=>x.prod==p&&x.wh==a);if(!s||s.q<need[p]){toast("Insufficient stock: "+nm("prod",p));return false}}
+const id=nid(DB.sale);L.forEach(l=>{DB.stock.find(x=>x.prod==l.prod&&x.wh==a).q-=l.q;DB.txn.push({id:nid(DB.txn),prod:l.prod,wh:a,type:"OUT",q:l.q,date:v("d"),ref:"SALE-"+id})});DB.sale.push({id,cust:v("c"),date:v("d"),wh:a,pay:"Pending",items:L.map(l=>({...l,price:DB.prod.find(p=>p.id==l.prod).price}))})}
+else DB.po.push({id:nid(DB.po),sup:a,date:v("d"),status:"Pending",items:L.map(l=>({...l,price:DB.prod.find(p=>p.id==l.prod).cost}))});toast("Saved")});addLine()}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,k=b.dataset.k,i=+b.dataset.i;
+if(a=="close")close_();else if(a=="addline")addLine();else if(a=="rm")b.parentNode.remove();else if(a=="new")orderForm(k);else if(a=="edit")entityForm(k,i);
+else if(a=="del"){if(used(k,i))return toast("Cannot delete: record is in use");if(confirm("Delete this record?")){DB[k]=DB[k].filter(x=>x.id!=i);save();render()}}
+else if(a=="paid"){DB.sale.find(s=>s.id==i).pay="Paid";save();render()}
+else if(a=="cancel"){DB.po.find(p=>p.id==i).status="Cancelled";save();render()}
+else if(a=="recv")modal("Receive purchase order #"+i,`<label>Store goods in<select name="w">${opts("wh")}</select></label>`,()=>{const p=DB.po.find(x=>x.id==i),w=+v("w");p.items.forEach(l=>{let s=DB.stock.find(x=>x.prod==l.prod&&x.wh==w);if(!s)DB.stock.push(s={prod:l.prod,wh:w,q:0});s.q+=l.q;DB.txn.push({id:nid(DB.txn),prod:l.prod,wh:w,type:"IN",q:l.q,date:today(),ref:"PO-"+i})});p.status="Received";toast("Stock updated")})});
+document.addEventListener("input",e=>{if(e.target.dataset.f){const q=e.target.value.toLowerCase();e.target.parentNode.querySelectorAll("tbody tr").forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q)?"":"none")}});
+$("#rs").onclick=()=>{if(confirm("Reset all data to the demo set?")){DB=seed();save();render()}};
+addEventListener("hashchange",render);render();
+</script></body></html>
